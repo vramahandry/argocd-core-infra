@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: all-apps-core-infra
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/vramahandry/argocd-core-infra.git
+    targetRevision: HEAD
+    path: appsets
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true  
+    automated: 
+      prune: true 
+      selfHeal: true
