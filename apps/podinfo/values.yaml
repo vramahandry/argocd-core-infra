@@ -1,0 +1,9 @@
+podinfo:
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: podinfo.kind.cluster
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
