@@ -1,7 +1,13 @@
 podinfo:
   ingress:
     enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: my-ca-issuer
     className: nginx
+    tls:                                                                                  │
+      - hosts:                                                                              │
+        - podinfo.kind.cluster                                                                │
+        secretName: podinfo-ingress-cert
     hosts:
       - host: podinfo.kind.cluster
         paths:
