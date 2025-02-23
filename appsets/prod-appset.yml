@@ -7,9 +7,11 @@ spec:
   generators:
   - git:
       repoURL: https://github.com/vramahandry/argocd-core-infra.git
-      revision: HEAD
+      revision: jump-sre-interview
       directories:
       - path: apps/*
+      - path: apps/donotdeploy
+        exclude: true
   template:      
     metadata:
       name: '{{path.basename}}'
@@ -20,7 +22,7 @@ spec:
       # Source of the application manifests
       source:
         repoURL: https://github.com/vramahandry/argocd-core-infra.git
-        targetRevision: HEAD
+        targetRevision: jump-sre-interview
         path: '{{path}}'
       
       # Destination cluster and namespace to deploy the application

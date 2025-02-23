@@ -7,14 +7,14 @@ spec:
   project: default
   source:
     repoURL: https://github.com/vramahandry/argocd-core-infra.git
-    targetRevision: HEAD
+    targetRevision: jump-sre-interview
     path: appsets
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
   syncPolicy:
     syncOptions:
-    - CreateNamespace=true  
+    - CreateNamespace=true
     automated: 
       prune: true 
       selfHeal: true
