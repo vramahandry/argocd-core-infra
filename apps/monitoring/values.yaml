@@ -1,0 +1,144 @@
+
+grafana:
+  enabled: true
+  resources:
+   limits:
+     cpu: 100m
+     memory: 128Mi
+   requests:
+     cpu: 100m
+     memory: 128Mi
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+  #     # -- Datasources linked to the Grafana instance. Override if you disable any components.
+      datasources:
+  ## https://grafana.com/docs/grafana/latest/datasources/tempo/configure-tempo-data-source/#provision-the-data-source
+        - name: Tempo
+          uid: tempo
+          type: tempo
+          url: http://{{ .Release.Name }}-tempo:3100
+          isDefault: false
+  #       # https://grafana.com/docs/grafana/latest/datasources/loki/#provision-the-loki-data-source
+  #       - name: Loki
+  #         uid: loki
+  #         type: loki
+  #         url: http://{{ .Release.Name }}-loki-query-frontend:3100
+  #         isDefault: false
+  #       # https://grafana.com/docs/grafana/latest/datasources/prometheus/#provision-the-data-source
+  #       - name: Mimir
+  #         uid: prom
+  #         type: prometheus
+  #         url: http://{{ .Release.Name }}-mimir-nginx/prometheus
+  #         isDefault: true
+
+  #         jsonData:
+  #           tracesToLogsV2:
+  #             datasourceUid: loki
+  #           lokiSearch:
+  #             datasourceUid: loki
+  #           tracesToMetrics:
+  #             datasourceUid: prom
+  #           serviceMap:
+  #             datasourceUid: prom
+
+tempo:
+  enabled: true
+  tempo:
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+otel:
+  enabled: true
+  manager:
+    # env:
+    #   ENABLE_WEBHOOKS: "true"
+    image:
+      tag: "v0.119.0"
+    collectorImage:
+      repository:  otel/opentelemetry-collector-contrib
+      tag: 0.119.0
+  admissionWebhooks:
+    certManager:
+      enabled: false
+    autoGenerateCert:
+      enabled: true
+
+loki:
+  enabled: false
+  loki:
+    auth_enabled: false
+    commonConfig:
+      replication_factor: 1
+    schemaConfig:
+      configs:
+        - from: 2024-04-01
+          store: tsdb
+          object_store: s3
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+    ingester:
+      chunk_encoding: snappy
+    tracing:
+      enabled: true
+    querier:
+      # Default is 4, if you have enough memory and CPU you can increase, reduce if OOMing
+      max_concurrent: 2
+  deploymentMode: SingleBinary
+  singleBinary:
+    replicas: 1
+    resources:
+      limits:
+        cpu: 200m
+        memory: 200Mi
+      requests:
+        cpu: 200m
+        memory: 200Mi
+    extraEnv:
+      # Keep a little bit lower than memory limits
+      - name: GOMEMLIMIT
+        value: 175MiB
+
+  chunksCache:
+    # default is 500MB, with limited memory keep this smaller
+    writebackSizeLimit: 10MB
+
+  # Enable minio for storage
+  minio:
+    enabled: true
+
+  # Zero out replica counts of other deployment modes
+  backend:
+    replicas: 0
+  read:
+    replicas: 0
+  write:
+    replicas: 0
+
+  ingester:
+    replicas: 0
+  querier:
+    replicas: 0
+  queryFrontend:
+    replicas: 0
+  queryScheduler:
+    replicas: 0
+  distributor:
+    replicas: 0
+  compactor:
+    replicas: 0
+  indexGateway:
+    replicas: 0
+  bloomCompactor:
+    replicas: 0
+  bloomGateway:
+    replicas: 0
+mimir:
+  enabled: false
